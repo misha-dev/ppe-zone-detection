@@ -17,10 +17,6 @@ class ModelSpec:
     def url(self) -> str:
         return f"https://huggingface.co/{self.repo}"
 
-    @property
-    def download_url(self) -> str:
-        return f"https://huggingface.co/{self.repo}/resolve/main/{self.file}"
-
 
 @dataclass(frozen=True)
 class Sample:
