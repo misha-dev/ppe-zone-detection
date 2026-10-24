@@ -264,7 +264,3 @@ body {
   color: var(--success);
 }
 
-.badge--outside {
-  background: var(--neutral-bg);
-  color: var(--neutral);
-}

@@ -1,24 +1,15 @@
-export type Point = [number, number];
-
 export type Box = [number, number, number, number];
 
 export interface Person {
   box: Box;
   helmet: boolean;
   vest: boolean;
-  inZone: boolean;
   violation: boolean;
 }
 
 export interface DetectResult {
   violation: boolean;
-  zone: Point[];
   people: Person[];
-}
-
-export interface DetectRequest {
-  file: File;
-  zone: Point[];
 }
 
 export interface ApiError {
@@ -27,7 +18,7 @@ export interface ApiError {
 
 export type Step = 'upload' | 'result';
 
-export type PersonStatus = 'violation' | 'ok' | 'outside';
+export type PersonStatus = 'violation' | 'ok';
 
 export type DrawFn = (ctx: CanvasRenderingContext2D, scale: number) => void;
 

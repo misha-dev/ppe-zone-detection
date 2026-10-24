@@ -1,29 +1,20 @@
-import { Box, DetectResult, Person, Point } from './types';
-import { getBounds, getFootPoint, isPointInPolygon } from './geometry';
+import { Box, DetectResult, ImageSize, Person } from './types';
 
-function toPerson(box: Box, helmet: boolean, vest: boolean, zone: Point[]): Person {
-  const inZone = isPointInPolygon(getFootPoint(box), zone);
-  return { box, helmet, vest, inZone, violation: inZone && !(helmet && vest) };
+function toPerson(box: Box, helmet: boolean, vest: boolean): Person {
+  return { box, helmet, vest, violation: !(helmet && vest) };
 }
 
-export function buildMockResult(zone: Point[]): DetectResult {
-  const [minX, minY, maxX, maxY] = getBounds(zone);
-  const width = maxX - minX;
-  const height = maxY - minY;
+export function buildMockResult({ width, height }: ImageSize): DetectResult {
   const personWidth = width * 0.12;
   const personHeight = height * 0.5;
-  const footY = minY + height * 0.9;
+  const footY = height * 0.9;
 
   function boxAt(shareX: number): Box {
-    const centerX = minX + width * shareX;
-    return [centerX - personWidth / 2, footY - personHeight, centerX + personWidth / 2, footY];
+    const centerX = width * shareX;
+    return [centerX - personWidth / 2, footY - personHeight, centerX + personWidth / 2, footY].map(Math.round) as Box;
   }
 
-  const people = [
-    toPerson(boxAt(0.25), false, true, zone),
-    toPerson(boxAt(0.5), true, true, zone),
-    toPerson(boxAt(0.75), true, false, zone),
-  ];
+  const people = [toPerson(boxAt(0.25), false, true), toPerson(boxAt(0.5), true, true), toPerson(boxAt(0.75), true, false)];
 
-  return { violation: people.some((person) => person.violation), zone, people };
+  return { violation: people.some((person) => person.violation), people };
 }

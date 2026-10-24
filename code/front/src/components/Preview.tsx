@@ -1,7 +1,6 @@
 import type { FC } from 'react';
 import { useDetect } from '../hooks/useDetect';
 import { useAppStore } from '../store/useAppStore';
-import { getImageZone } from '../utils/image';
 import { ImageCanvas } from './ImageCanvas';
 
 export const Preview: FC = () => {
@@ -16,15 +15,14 @@ export const Preview: FC = () => {
   }
 
   function handleCheckClick(): void {
-    if (!file || !image) return;
-    mutate({ file, zone: getImageZone(image) }, { onSuccess: (result) => setResult(result) });
+    if (!file) return;
+    mutate(file, { onSuccess: (result) => setResult(result) });
   }
 
   if (!image) return null;
 
   return (
     <section className="card">
-      <p className="hint">Опасной зоной считается всё фото.</p>
       <ImageCanvas image={image} />
       {error && <p className="error">{error.message}</p>}
       <div className="actions">

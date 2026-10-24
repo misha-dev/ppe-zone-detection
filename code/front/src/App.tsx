@@ -13,7 +13,7 @@ export const App: FC = () => {
   return (
     <div className="app">
       <header className="header">
-        <h1>Контроль СИЗ в опасной зоне</h1>
+        <h1>Контроль СИЗ</h1>
         <p>Загрузите фото — система найдёт людей без каски или жилета.</p>
       </header>
       <Steps current={step} />

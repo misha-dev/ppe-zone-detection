@@ -12,14 +12,12 @@ export const STEPS: { id: Step; label: string }[] = [
 export const COLORS = {
   violation: '#ef4444',
   ok: '#22c55e',
-  outside: '#94a3b8',
   label: '#ffffff',
 };
 
 export const STATUS_LABELS: Record<PersonStatus, string> = {
   violation: 'Нарушение',
   ok: 'В порядке',
-  outside: 'Вне зоны',
 };
 
 export const LINE_WIDTH = 3;

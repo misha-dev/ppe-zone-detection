@@ -1,5 +1,5 @@
 import { API_URL } from '../constants';
-import type { ApiError, DetectRequest, DetectResult, Point } from '../types';
+import type { ApiError, DetectResult } from '../types';
 
 async function getErrorMessage(response: Response): Promise<string> {
   const fallback = `Ошибка сервера (${response.status})`;
@@ -11,14 +11,9 @@ async function getErrorMessage(response: Response): Promise<string> {
   }
 }
 
-function roundPoint([x, y]: Point): Point {
-  return [Math.round(x), Math.round(y)];
-}
-
-export async function detect({ file, zone }: DetectRequest): Promise<DetectResult> {
+export async function detect(file: File): Promise<DetectResult> {
   const form = new FormData();
   form.append('image', file);
-  form.append('zone', JSON.stringify(zone.map(roundPoint)));
 
   const response = await fetch(`${API_URL}/detect`, { method: 'POST', body: form });
   if (!response.ok) throw new Error(await getErrorMessage(response));
