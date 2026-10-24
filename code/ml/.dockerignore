@@ -1,0 +1,9 @@
+.venv
+__pycache__
+*.pt
+weights
+data
+runs
+compare
+README.md
+TASKS.md

@@ -1,10 +1,25 @@
 services:
+  ml:
+    build: ./code/ml
+    environment:
+      MODEL_PATH: /app/weights/${ML_MODEL:-killuminati1-v8}.pt
+      PERSON_SOURCE: ${PERSON_SOURCE:-model}
+      PERSON_MODEL_PATH: /app/weights/yolo11n.pt
+      CONF_THRESHOLD: ${CONF_THRESHOLD:-0.35}
+    volumes:
+      - ./code/ml/weights:/app/weights:ro
+    ports:
+      - "8000:8000"
+
   back:
     build: ./code/back
+    depends_on:
+      ml:
+        condition: service_healthy
     environment:
       PORT: 3000
       ML_URL: http://ml:8000
-      ML_MOCK: ${ML_MOCK:-true}
+      ML_MOCK: ${ML_MOCK:-false}
     ports:
       - "3000:3000"
 

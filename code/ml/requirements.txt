@@ -1,0 +1,4 @@
+ultralytics==8.4.187
+fastapi==0.162.0
+uvicorn[standard]==0.54.0
+python-multipart==0.0.32
