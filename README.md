@@ -27,6 +27,71 @@ code/back/       - бэкенд
 code/ml/         - нейросети
 ```
 
+## Запуск
+
+Опасной зоной считается всё фото: фронтенд сам отправляет зону по границам изображения.
+
+Пока сервиса нейросетей нет, бэкенд возвращает тестовый ответ (режим `ML_MOCK=true`): три человека на фото, двое из них без СИЗ.
+
+### Вариант 1. Docker
+
+Нужен запущенный Docker Desktop.
+
+```bash
+docker compose up --build
+```
+
+- Приложение: http://localhost:8080
+- Swagger: http://localhost:3000/api/docs
+
+Остановить: `Ctrl+C`, затем `docker compose down`.
+
+### Вариант 2. Локально
+
+Нужен Node.js 20.19+ (проверено на 24). Открыть два терминала в корне проекта.
+
+Терминал 1 — бэкенд:
+
+```bash
+cd code/back
+npm install
+ML_MOCK=true npm run start:dev
+```
+
+Терминал 2 — фронтенд:
+
+```bash
+cd code/front
+npm install
+npm run dev
+```
+
+- Приложение: http://localhost:5173
+- Swagger: http://localhost:3000/api/docs
+
+Фронтенд перенаправляет запросы `/api` на `http://localhost:3000`. Другой адрес бэкенда задаётся через `VITE_PROXY_TARGET`.
+
+### Как пользоваться
+
+1. Загрузить фото (JPEG, PNG или WebP, до 10 МБ).
+2. Нажать «Проверить».
+3. На результате: рамки людей (красная — нарушение, зелёная — в порядке), вердикт и таблица с касками и жилетами.
+
+### Проверка API без фронтенда
+
+```bash
+curl -F image=@photo.jpg -F 'zone=[[0,0],[1280,0],[1280,720],[0,720]]' http://localhost:3000/api/detect
+```
+
+### Подключение сервиса нейросетей
+
+Когда ML будет готов:
+
+1. Добавить в `docker-compose.yml` сервис `ml` (порт 8000, эндпоинт `POST /detect`, поля `image` и `zone`).
+2. Запустить с `ML_MOCK=false docker compose up --build`.
+
+Локально: `ML_URL=http://localhost:8000 npm run start:dev` в `code/back`.
+
 ## Этапы
 
 - КТ 1 - старт и бизнес-процессы

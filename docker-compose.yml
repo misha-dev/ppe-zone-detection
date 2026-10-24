@@ -1,0 +1,16 @@
+services:
+  back:
+    build: ./code/back
+    environment:
+      PORT: 3000
+      ML_URL: http://ml:8000
+      ML_MOCK: ${ML_MOCK:-true}
+    ports:
+      - "3000:3000"
+
+  front:
+    build: ./code/front
+    depends_on:
+      - back
+    ports:
+      - "8080:80"
