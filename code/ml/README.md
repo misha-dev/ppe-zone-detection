@@ -46,6 +46,7 @@
 | `PERSON_SOURCE` | `model` | `coco` — брать людей из `yolo11n`, а не из модели СИЗ |
 | `CONF_THRESHOLD` | `0.35` | порог уверенности |
 | `IOU_THRESHOLD` | `0.5` | порог NMS |
+| `IMG_SIZE` | `640` | размер входа модели |
 | `DEVICE` | `cpu` | `cpu`, `mps` или `0` (GPU) |
 
 ## Откуда веса
