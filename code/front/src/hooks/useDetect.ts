@@ -1,7 +1,7 @@
 import { useMutation, type UseMutationResult } from '@tanstack/react-query';
-import { detect } from '../api/detect';
-import type { DetectResult } from '../types';
+import { detectMany } from '../api/detect';
+import type { DetectOutcome, Photo } from '../types';
 
-export function useDetect(): UseMutationResult<DetectResult, Error, File> {
-  return useMutation({ mutationFn: detect });
+export function useDetect(): UseMutationResult<DetectOutcome[], Error, Photo[]> {
+  return useMutation({ mutationFn: detectMany });
 }

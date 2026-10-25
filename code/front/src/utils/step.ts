@@ -1,5 +1,5 @@
 import type { AppState, Step } from '../types';
 
-export function getStep({ result }: AppState): Step {
-  return result ? 'result' : 'upload';
+export function getStep({ checked }: AppState): Step {
+  return checked ? 'result' : 'upload';
 }

@@ -4,12 +4,17 @@ import type { DrawFn } from '../types';
 import { drawPeople } from '../utils/draw';
 import { ImageCanvas } from './ImageCanvas';
 import { PeopleList } from './PeopleList';
+import { PhotoGallery } from './PhotoGallery';
+import { Summary } from './Summary';
 import { Verdict } from './Verdict';
 
 export const ResultView: FC = () => {
-  const image = useAppStore((state) => state.image);
-  const result = useAppStore((state) => state.result);
+  const photos = useAppStore((state) => state.photos);
+  const selectedId = useAppStore((state) => state.selectedId);
+  const selectPhoto = useAppStore((state) => state.selectPhoto);
   const reset = useAppStore((state) => state.reset);
+  const photo = photos.find((item) => item.id === selectedId) ?? photos[0];
+  const result = photo?.result;
 
   const draw = useCallback<DrawFn>(
     (ctx, scale) => {
@@ -18,24 +23,38 @@ export const ResultView: FC = () => {
     [result],
   );
 
+  function handleSelect(id: string): void {
+    selectPhoto(id);
+  }
+
   function handleNewPhotoClick(): void {
     reset();
   }
 
-  if (!image || !result) return null;
+  if (!photo) return null;
 
   return (
     <section className="card">
-      <Verdict
-        violation={result.violation}
-        violators={result.people.filter((person) => person.violation).length}
-        people={result.people.length}
-      />
-      <ImageCanvas image={image} draw={draw} />
-      <PeopleList people={result.people} />
+      {photos.length > 1 && (
+        <>
+          <Summary photos={photos} />
+          <PhotoGallery photos={photos} selectedId={photo.id} onSelect={handleSelect} />
+          <h2 className="card__title">{photo.file.name}</h2>
+        </>
+      )}
+      {result && (
+        <Verdict
+          violation={result.violation}
+          violators={result.people.filter((person) => person.violation).length}
+          people={result.people.length}
+        />
+      )}
+      {photo.error && <p className="error">{photo.error}</p>}
+      <ImageCanvas image={photo.image} draw={draw} />
+      {result && <PeopleList people={result.people} />}
       <div className="actions">
         <button type="button" className="button button--primary" onClick={handleNewPhotoClick}>
-          Новое фото
+          {photos.length > 1 ? 'Новые фото' : 'Новое фото'}
         </button>
       </div>
     </section>

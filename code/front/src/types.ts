@@ -22,13 +22,53 @@ export type PersonStatus = 'violation' | 'ok';
 
 export type DrawFn = (ctx: CanvasRenderingContext2D, scale: number) => void;
 
-export interface AppState {
-  file: File | null;
-  image: HTMLImageElement | null;
+export interface Photo {
+  id: string;
+  file: File;
+  image: HTMLImageElement;
   result: DetectResult | null;
-  setImage: (file: File, image: HTMLImageElement) => void;
-  setResult: (result: DetectResult | null) => void;
+  error: string | null;
+}
+
+export interface DetectOutcome {
+  id: string;
+  result: DetectResult | null;
+  error: string | null;
+}
+
+export interface PhotoSelection {
+  photos: Photo[];
+  errors: string[];
+}
+
+export type PhotoStatus = PersonStatus | 'error' | 'pending';
+
+export interface AppState {
+  photos: Photo[];
+  selectedId: string | null;
+  checked: boolean;
+  addPhotos: (photos: Photo[]) => void;
+  removePhoto: (id: string) => void;
+  selectPhoto: (id: string) => void;
+  setOutcomes: (outcomes: DetectOutcome[]) => void;
   reset: () => void;
+}
+
+export interface UsePhotoPicker {
+  errors: string[];
+  pickFiles: (files: FileList | null) => Promise<void>;
+}
+
+export interface PhotoGalleryProps {
+  photos: Photo[];
+  selectedId?: string | null;
+  disabled?: boolean;
+  onSelect?: (id: string) => void;
+  onRemove?: (id: string) => void;
+}
+
+export interface ErrorListProps {
+  errors: string[];
 }
 
 export interface StepsProps {
@@ -44,6 +84,10 @@ export interface VerdictProps {
   violation: boolean;
   violators: number;
   people: number;
+}
+
+export interface SummaryProps {
+  photos: Photo[];
 }
 
 export interface PeopleListProps {
