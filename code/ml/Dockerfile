@@ -18,13 +18,17 @@ RUN pip install -r requirements-torch.txt --index-url https://download.pytorch.o
     && pip install -r requirements.txt
 
 COPY app ./app
+ADD --chmod=0444 --checksum=sha256:31ef3ca04a17cf545f3fcfc64c4af8993a41d52ccc460e82aff01d5354603533 https://huggingface.co/killuminati1/construction-ppe-yolov8/resolve/main/best.pt /app/bundled-weights/killuminati1-v8.pt
+RUN chmod 0755 /app/bundled-weights
 
 VOLUME /app/weights
 
-ENV MODEL_PATH=/app/weights/model.pt \
-    PERSON_MODEL_PATH=/app/weights/yolo11n.pt
+ENV MODEL_PATH=/app/bundled-weights/killuminati1-v8.pt \
+    PERSON_MODEL_PATH=/app/weights/yolo11n.pt \
+    HOME=/tmp
 
 EXPOSE 8000
+USER 10001:10001
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=5 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"

@@ -7,3 +7,5 @@ runs
 compare
 README.md
 TASKS.md
+.env
+.env.*

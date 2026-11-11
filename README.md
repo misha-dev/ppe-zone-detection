@@ -31,82 +31,30 @@ code/ml/         - нейросети
 
 Три сервиса: фронтенд, бэкенд и нейросети (`code/ml`). Бэкенд отправляет фото в `ml` (`POST http://ml:8000/detect`). Нейросети используют готовую модель [killuminati1/construction-ppe-yolov8](https://huggingface.co/killuminati1/construction-ppe-yolov8) (YOLOv8s, Apache-2.0). Почему выбрана она, описано в разделе «Сравнение моделей» в [code/ml/README.md](code/ml/README.md).
 
-Веса моделей (`.pt`) в git не хранятся: их нужно один раз скачать в папку `code/ml/weights`. Docker подключает эту папку в контейнер `ml`.
+Веса выбранной модели `killuminati1-v8` скачиваются при сборке ML-образа. Docker проверяет SHA-256 файла. Веса не хранятся в Git.
 
 ### Быстрый старт через Docker
 
-Нужны:
-- git;
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/), запущенный;
-- Python 3.10+ для скачивания весов (если Python нет, см. шаг 2, способ Б).
+Нужен запущенный Docker Desktop или Docker Engine с Compose v2 и BuildKit. Для первой сборки нужен интернет. Все три сервиса работают на CPU.
 
-**1. Склонировать репозиторий**
-
-```bash
-git clone https://github.com/misha-dev/ppe-zone-detection.git
-cd ppe-zone-detection
-```
-
-**2. Скачать веса (один раз, около 27 МБ)**
-
-Способ А — скриптом (macOS / Linux):
-
-```bash
-cd code/ml
-python3 -m venv .venv
-.venv/bin/pip install huggingface_hub pydantic
-.venv/bin/python -m compare.download --no-dataset --models killuminati1-v8
-cd ../..
-```
-
-На Windows (PowerShell) то же самое:
-
-```powershell
-cd code/ml
-python -m venv .venv
-.venv\Scripts\pip install huggingface_hub pydantic
-.venv\Scripts\python -m compare.download --no-dataset --models killuminati1-v8
-cd ../..
-```
-
-Способ Б — без Python, через curl (из корня проекта):
-
-```bash
-mkdir -p code/ml/weights
-curl -L -o code/ml/weights/killuminati1-v8.pt https://huggingface.co/killuminati1/construction-ppe-yolov8/resolve/main/best.pt
-curl -L -o code/ml/weights/yolo11n.pt https://github.com/ultralytics/assets/releases/download/v8.3.0/yolo11n.pt
-```
-
-Проверить, что всё скачалось:
-
-```bash
-ls -lh code/ml/weights
-```
-
-Должны быть файлы `killuminati1-v8.pt` (около 22 МБ) и `yolo11n.pt` (около 5 МБ). Если файла модели нет, контейнер `ml` упадёт при старте, и `docker compose` не запустит бэкенд (ошибка `dependency failed to start`).
-
-**3. Собрать и запустить**
-
-Из корня проекта:
+После клонирования откройте корень репозитория и выполните:
 
 ```bash
 docker compose up --build
 ```
 
-Первая сборка занимает несколько минут: в образ `ml` ставятся torch (CPU) и ultralytics, скачивается около 500 МБ, готовый образ весит около 2,2 ГБ. Если загрузка оборвалась, повторите команду: готовые шаги Docker берёт из кэша. Сервис готов, когда в логах появится `Uvicorn running on http://0.0.0.0:8000` и запустится бэкенд.
+Откройте [веб-интерфейс](http://localhost:8080), выберите фото и нажмите «Проверить». [Swagger бэкенда](http://localhost:3000/api/docs) и [состояние ML-сервиса](http://localhost:8000/health) доступны отдельно. Остановить запуск можно сочетанием `Ctrl+C`. Чтобы удалить контейнеры проекта, выполните `docker compose down`.
 
-**4. Открыть**
+Для настроек можно скопировать `.env.example` в `.env`. При использовании другой модели укажите `ML_MODEL` и положите файл `<имя>.pt` в `code/ml/weights`. Для `PERSON_SOURCE=coco` в этой же папке нужен `yolo11n.pt`. Скачать дополнительные веса можно командой `python -m compare.download --no-dataset --models hansung-v8n` из `code/ml` с установленными зависимостями сравнения.
 
-- Приложение: http://localhost:8080
-- Swagger бэкенда: http://localhost:3000/api/docs
-- Сервис нейросетей: http://localhost:8000/health (должен вернуть `"status": "ok"`)
+### Демо на тестовых фото
 
-Остановить: `Ctrl+C`, затем `docker compose down`.
+В тестовом сплите [VincentGOURBIN/ppe-detection](https://huggingface.co/datasets/VincentGOURBIN/ppe-detection/tree/main/test/images) найдите JPEG-файлы с указанными префиксами. Загрузите их в интерфейс одним пакетом и нажмите «Проверить».
 
-**Дополнительно**
-
-- Другая модель из сравнения. Сначала скачать её веса (`--models hansung-v8n` в шаге 2), затем запустить `ML_MODEL=hansung-v8n PERSON_SOURCE=coco docker compose up --build`.
-- Без нейросетей, с тестовым ответом бэкенда (веса не нужны): `ML_MOCK=true docker compose up --build --no-deps front back`.
+| Префикс файла | Что увидеть в интерфейсе |
+|---|---|
+| `ppe_0160` | Один человек в каске и жилете, нарушений нет |
+| `ppe_0210` | Один человек в каске без жилета, есть нарушение |
 
 ### Запуск без Docker
 

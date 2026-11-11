@@ -116,13 +116,13 @@ python3 -m venv .venv
 
 ### Docker
 
-Веса не входят в образ, а монтируются томом из `code/ml/weights`. Поэтому сначала их нужно скачать. Пошаговая инструкция после `git clone`, в том числе скачивание через curl без Python, — в разделе «Быстрый старт через Docker» в [корневом README](../../README.md). Затем из корня проекта:
+При сборке образа Docker скачивает проверенные веса `killuminati1-v8`. Из корня проекта:
 
 ```bash
 docker compose up --build
 ```
 
-Модель выбирается переменными `ML_MODEL` (имя файла в `weights/` без `.pt`, по умолчанию `killuminati1-v8`) и `PERSON_SOURCE`:
+Для другой модели скачайте её веса в `weights/`, укажите имя файла без `.pt` в `ML_MODEL` и при необходимости добавьте `yolo11n.pt` для `PERSON_SOURCE=coco`:
 
 ```bash
 ML_MODEL=hansung-v8n PERSON_SOURCE=coco docker compose up --build

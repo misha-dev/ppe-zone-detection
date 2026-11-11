@@ -2,7 +2,7 @@ services:
   ml:
     build: ./code/ml
     environment:
-      MODEL_PATH: /app/weights/${ML_MODEL:-killuminati1-v8}.pt
+      MODEL_PATH: ${ML_MODEL:+/app/weights/}${ML_MODEL:-/app/bundled-weights/killuminati1-v8}.pt
       PERSON_SOURCE: ${PERSON_SOURCE:-model}
       PERSON_MODEL_PATH: /app/weights/yolo11n.pt
       CONF_THRESHOLD: ${CONF_THRESHOLD:-0.35}
@@ -26,6 +26,7 @@ services:
   front:
     build: ./code/front
     depends_on:
-      - back
+      back:
+        condition: service_healthy
     ports:
       - "8080:80"
